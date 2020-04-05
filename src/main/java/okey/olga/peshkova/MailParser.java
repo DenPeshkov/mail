@@ -64,18 +64,24 @@ public final class MailParser {
 
     static public Message[] parse(String host, String user, String password, String mbox, String protocol) throws MessagingException {
 
-        return parse(host, user, password, mbox, protocol, store -> {
+        return parse(host, user, password, protocol, store -> {
             Message[] messages;
             try (Folder folder = Optional.ofNullable(store.getFolder(mbox)).filter(MailParser::folderExists).orElseThrow(() -> new NoSuchElementException("Folder is empty"))) {
                 folder.open(Folder.READ_ONLY);
-                MimeMessage[] messages1 = (MimeMessage[]) folder.search(new FlagTerm(new Flags(Flags.Flag.SEEN), false));
-                messages = Arrays.stream(messages1).map(MailParser::mapMessage).filter(Objects::nonNull).toArray(Message[]::new);
+                MimeMessage[] messages1 = (MimeMessage[]) folder.search(new FlagTerm(new Flags(Flags.Flag.SEEN), true));
+
+                FetchProfile fp = new FetchProfile();
+                fp.add(FetchProfile.Item.ENVELOPE);
+
+                folder.fetch(messages1, fp);
+
+                messages = Arrays.stream(messages1).map(MailParser::mapMessage).limit(10).filter(Objects::nonNull).toArray(Message[]::new);
             }
             return messages;
         });
     }
 
-    static private Message[] parse(String host, String user, String password, String mbox, String protocol, ParseFunction function) throws MessagingException {
+    static private Message[] parse(String host, String user, String password, String protocol, ParseFunction function) throws MessagingException {
         Properties props = System.getProperties();
         props.setProperty("mail." + protocol + ".ssl.enable", "true");
 
