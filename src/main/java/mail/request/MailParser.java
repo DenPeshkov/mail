@@ -1,4 +1,4 @@
-package okey.olga.peshkova;
+package mail.request;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -68,7 +68,7 @@ public final class MailParser {
             Message[] messages;
             try (Folder folder = Optional.ofNullable(store.getFolder(mbox)).filter(MailParser::folderExists).orElseThrow(() -> new NoSuchElementException("Folder is empty"))) {
                 folder.open(Folder.READ_ONLY);
-                MimeMessage[] messages1 = (MimeMessage[]) folder.search(new FlagTerm(new Flags(Flags.Flag.SEEN), true));
+                MimeMessage[] messages1 = (MimeMessage[]) folder.search(new FlagTerm(new Flags(Flags.Flag.SEEN), false));
 
                 FetchProfile fp = new FetchProfile();
                 fp.add(FetchProfile.Item.ENVELOPE);
