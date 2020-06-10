@@ -1,13 +1,11 @@
 package mail.module.mail.request;
 
 import javax.mail.MessagingException;
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.Properties;
 
 public class Mail {
-  public static void main(String[] args) throws IOException, GeneralSecurityException {
+  public static void main(String[] args) {
     Properties properties = System.getProperties();
 
     for (int i = 0; i < args.length; i++) {
