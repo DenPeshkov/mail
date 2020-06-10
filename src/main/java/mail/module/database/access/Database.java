@@ -1,4 +1,4 @@
-package database.access;
+package mail.module.database.access;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -10,7 +10,7 @@ public class Database {
   public static void executeProcedure(
       String serverUrl, int port, String databaseName, String user, String password) {
     Properties properties = new Properties();
-    properties.setProperty("database", databaseName);
+    properties.setProperty("mail/module/database/database", databaseName);
     properties.setProperty("user", user);
     properties.setProperty("password", password);
     properties.setProperty("encrypt", "true");

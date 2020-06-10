@@ -1,4 +1,4 @@
-package mail.request;
+package mail.module.mail.request;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -48,29 +48,14 @@ public final class MailParser {
     Message[] apply(Store store) throws MessagingException;
   }
 
-  public static Message[] parse(String host, String user, String password)
-      throws MessagingException {
-    return parse(host, user, password, "INBOX");
-  }
-
-  public static Message[] parse(String host, String user, String password, String mbox)
-      throws MessagingException {
-    return parse(host, user, password, mbox, "imap");
-  }
-
-  public static Message[] parse(
-      String host, String user, String password, String mbox, String protocol)
-      throws MessagingException {
+  public static Message[] parse(Properties properties) throws MessagingException {
 
     return parse(
-        host,
-        user,
-        password,
-        protocol,
+        properties,
         store -> {
           Message[] messages;
           try (Folder folder =
-              Optional.ofNullable(store.getFolder(mbox))
+              Optional.ofNullable(store.getFolder(properties.getProperty("mbox", "INBOX")))
                   .filter(MailParser::folderExists)
                   .orElseThrow(() -> new NoSuchElementException("Folder is empty"))) {
             folder.open(Folder.READ_ONLY);
@@ -93,17 +78,17 @@ public final class MailParser {
         });
   }
 
-  private static Message[] parse(
-      String host, String user, String password, String protocol, ParseFunction function)
+  private static Message[] parse(Properties properties, ParseFunction function)
       throws MessagingException {
-    Properties props = new Properties();
-    props.setProperty("mail." + protocol + ".ssl.enable", "true");
+    Session session = Session.getInstance(properties, null);
 
-    Session session = Session.getInstance(props, null);
+    Store store = session.getStore(properties.getProperty("protocol", "imap"));
 
-    Store store = session.getStore(protocol);
-
-    store.connect(host, user, password);
+    store.connect(
+        properties.getProperty("host"),
+        Integer.parseInt(properties.getProperty("port", "143")),
+        properties.getProperty("user"),
+        properties.getProperty("password"));
 
     try (store) {
       return function.apply(store);
@@ -114,7 +99,7 @@ public final class MailParser {
     try {
       return new Message(message);
     } catch (MessagingException e) {
-      e.printStackTrace();
+      e.printStackTrace(System.err);
     }
     return null;
   }
@@ -123,7 +108,7 @@ public final class MailParser {
     try {
       return s.exists();
     } catch (MessagingException e) {
-      e.printStackTrace();
+      e.printStackTrace(System.err);
     }
     return false;
   }

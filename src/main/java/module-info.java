@@ -1,4 +1,4 @@
-module mail.request {
-  requires java.mail;
+module mail.module {
   requires java.sql;
+  requires java.mail;
 }
