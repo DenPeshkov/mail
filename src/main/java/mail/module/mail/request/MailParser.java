@@ -100,16 +100,18 @@ public final class MailParser {
               Optional.ofNullable(store.getFolder(properties.getProperty("mbox", "INBOX")))
                   .filter(MailParser::folderExists)
                   .orElseThrow(() -> new NoSuchElementException("Folder is empty"))) {
-            folder.open(Folder.READ_ONLY);
-            Message[] messages1 = folder.search(new FlagTerm(new Flags(Flags.Flag.SEEN), false));
+            folder.open(Folder.READ_WRITE);
+            Message[] messages = folder.search(new FlagTerm(new Flags(Flags.Flag.SEEN), false));
+            if (properties.getProperty("delete", "false").equals("true"))
+              folder.setFlags(messages, new Flags(Flags.Flag.DELETED), true);
 
             FetchProfile fp = new FetchProfile();
             fp.add(FetchProfile.Item.ENVELOPE);
 
-            folder.fetch(messages1, fp);
+            folder.fetch(messages, fp);
 
             mailMessages =
-                Arrays.stream(messages1)
+                Arrays.stream(messages)
                     .map(MailParser::mapMessage)
                     .filter(Objects::nonNull)
                     .toArray(MailMessage[]::new);

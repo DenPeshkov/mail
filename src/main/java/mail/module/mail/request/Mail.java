@@ -11,7 +11,7 @@ public class Mail {
     for (int i = 0; i < args.length; i++) {
       if ("--help".equals(args[i])) {
         System.err.println(
-            "Usage: mail [-p port] [-T protocol] [-f mbox] -H host -U user -P password");
+            "Usage: mail [-p port] [-T protocol] [-f mbox] [--delete] -H host -U user -P password");
         System.exit(0);
       } else if ("-H".equals(args[i])) properties.setProperty("host", args[++i]);
       else if ("-U".equals(args[i])) properties.setProperty("user", args[++i]);
@@ -20,6 +20,7 @@ public class Mail {
         properties.setProperty("port", String.valueOf(Integer.parseInt(args[++i])));
       else if ("-T".equals(args[i])) properties.setProperty("protocol", args[++i]);
       else if ("-f".equals(args[i])) properties.setProperty("mbox", args[++i]);
+      else if ("--delete".equals(args[i])) properties.setProperty("delete", "true");
     }
 
     if (!properties.containsKey("host")
@@ -27,7 +28,7 @@ public class Mail {
         || !properties.containsKey("password")) {
       System.err.println(
           "You have to specify host user and password:\n"
-              + "Usage: mail [-p port] [-T protocol] [-f mbox] -H host -U user -P password");
+              + "Usage: mail [-p port] [-T protocol] [-f mbox] [--delete] -H host -U user -P password");
       System.exit(0);
     }
 
