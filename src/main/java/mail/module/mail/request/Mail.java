@@ -1,11 +1,13 @@
 package mail.module.mail.request;
 
 import javax.mail.MessagingException;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.Properties;
 
 public class Mail {
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException, GeneralSecurityException {
     Properties properties = System.getProperties();
 
     for (int i = 0; i < args.length; i++) {
@@ -31,7 +33,7 @@ public class Mail {
       System.exit(0);
     }
 
-    MailParser.Message[] parse = new MailParser.Message[0];
+    MailParser.MailMessage[] parse = new MailParser.MailMessage[0];
     try {
       parse = MailParser.parse(properties);
     } catch (MessagingException e) {
