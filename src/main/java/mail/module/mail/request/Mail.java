@@ -1,5 +1,8 @@
 package mail.module.mail.request;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
 import javax.mail.MessagingException;
 import java.util.Arrays;
 import java.util.Properties;

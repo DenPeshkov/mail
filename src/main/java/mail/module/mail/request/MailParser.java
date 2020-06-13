@@ -1,5 +1,7 @@
 package mail.module.mail.request;
 
+import org.jsoup.Jsoup;
+
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.search.FlagTerm;
@@ -20,7 +22,7 @@ public final class MailParser {
     public MailMessage(javax.mail.Message message) throws MessagingException, IOException {
       setFrom((InternetAddress[]) message.getFrom());
       setSubject(message.getSubject());
-      text = getText(message);
+      text = Jsoup.parse(getText(message)).body().text();
     }
 
     private String getText(Part p) throws MessagingException, IOException {
@@ -52,7 +54,7 @@ public final class MailParser {
         }
       }
 
-      return null;
+      return "";
     }
 
     public String[] getFrom() {
