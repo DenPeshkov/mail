@@ -114,6 +114,7 @@ public final class MailParser {
                 Arrays.stream(messages)
                     .map(MailParser::mapMessage)
                     .filter(Objects::nonNull)
+                    .filter(message -> message.subject.toUpperCase().startsWith("ЗАЯВКА №"))
                     .toArray(MailMessage[]::new);
           }
           return mailMessages;
