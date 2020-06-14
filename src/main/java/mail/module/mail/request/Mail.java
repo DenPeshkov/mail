@@ -1,10 +1,8 @@
 package mail.module.mail.request;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
+import mail.module.database.access.Database;
 
 import javax.mail.MessagingException;
-import java.util.Arrays;
 import java.util.Properties;
 
 public class Mail {
@@ -14,7 +12,7 @@ public class Mail {
     for (int i = 0; i < args.length; i++) {
       if ("--help".equals(args[i])) {
         System.err.println(
-            "Usage: mail [-p port] [-T protocol] [-f mbox] [--delete] -H host -U user -P password");
+            "Usage: mail [-p port] [-T protocol] [-f mbox] [--delete] -H host -U user -P password --database databaseURL");
         System.exit(0);
       } else if ("-H".equals(args[i])) properties.setProperty("host", args[++i]);
       else if ("-U".equals(args[i])) properties.setProperty("user", args[++i]);
@@ -24,24 +22,28 @@ public class Mail {
       else if ("-T".equals(args[i])) properties.setProperty("protocol", args[++i]);
       else if ("-f".equals(args[i])) properties.setProperty("mbox", args[++i]);
       else if ("--delete".equals(args[i])) properties.setProperty("delete", "true");
+      else if ("--database".equals(args[i])) properties.setProperty("databaseURL", args[++i]);
     }
 
     if (!properties.containsKey("host")
         || !properties.containsKey("user")
-        || !properties.containsKey("password")) {
+        || !properties.containsKey("password")
+        || !properties.containsKey("databaseURL")) {
       System.err.println(
-          "You have to specify host user and password:\n"
-              + "Usage: mail [-p port] [-T protocol] [-f mbox] [--delete] -H host -U user -P password");
+          "You have to specify host, user and password and databaseURL:\n"
+              + "Usage: mail [-p port] [-T protocol] [-f mbox] [--delete] -H host -U user -P password --database databaseURL");
       System.exit(0);
     }
 
-    MailParser.MailMessage[] parse = new MailParser.MailMessage[0];
+    MailParser.MailMessage[] messages = new MailParser.MailMessage[0];
     try {
-      parse = MailParser.parse(properties);
+      messages = MailParser.parse(properties);
     } catch (MessagingException e) {
       e.printStackTrace(System.err);
+      System.exit(1);
     }
 
-    System.out.println(Arrays.toString(parse));
+    Database database = new Database(properties.getProperty("databaseURL"));
+    database.insertMails(messages);
   }
 }

@@ -1,41 +1,40 @@
 package mail.module.database.access;
 
+import mail.module.mail.request.MailParser;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Properties;
 
 public class Database {
-  public static void executeProcedure(
-      String serverUrl, int port, String databaseName, String user, String password) {
-    Properties properties = new Properties();
-    properties.setProperty("mail/module/database/database", databaseName);
-    properties.setProperty("user", user);
-    properties.setProperty("password", password);
-    properties.setProperty("encrypt", "true");
-    properties.setProperty("trustServerCertificate", "false");
-    properties.setProperty("loginTimeout", "30");
+  private final String connectionUrl;
+  private final Properties connectionProperties;
 
-    try (Connection connection =
-            getConnection("jdbc:sqlserver://" + serverUrl + ":" + port, properties);
-        Statement statement = connection.createStatement()) {
-
-    } catch (SQLException e) {
-      printSqlException(e);
-      System.exit(1);
-    }
+  public Database(String connectionUrl) {
+    this.connectionUrl = connectionUrl;
+    connectionProperties = new Properties();
+    connectionProperties.setProperty("encrypt", "true");
+    connectionProperties.setProperty("trustServerCertificate", "false");
+    connectionProperties.setProperty("loginTimeout", "30");
   }
 
-  private static Connection getConnection(String url, Properties properties) {
-    Connection connection = null;
-    try {
-      connection = DriverManager.getConnection(url, properties);
+  public void insertMails(MailParser.MailMessage[] messages) {
+    String insertString =
+        "insert into user_mail_inbox (subject,comments,sender) values ('?','?','?')";
+    try (Connection connection = DriverManager.getConnection(connectionUrl, connectionProperties);
+        PreparedStatement statement = connection.prepareStatement(insertString)) {
+      for (MailParser.MailMessage message : messages) {
+        statement.setString(1, message.getSubject());
+        statement.setString(2, message.getText());
+        statement.setString(3, message.getFrom()[0]);
+        statement.executeUpdate();
+      }
     } catch (SQLException e) {
       printSqlException(e);
       System.exit(1);
     }
-    return connection;
   }
 
   private static void printSqlException(SQLException exception) {
