@@ -10,20 +10,15 @@ import java.util.Properties;
 
 public class Database {
   private final String connectionUrl;
-  private final Properties connectionProperties;
 
   public Database(String connectionUrl) {
     this.connectionUrl = connectionUrl;
-    connectionProperties = new Properties();
-    connectionProperties.setProperty("encrypt", "true");
-    connectionProperties.setProperty("trustServerCertificate", "false");
-    connectionProperties.setProperty("loginTimeout", "30");
   }
 
   public void insertMails(MailParser.MailMessage[] messages) {
     String insertString =
         "insert into user_mail_inbox (subject,comments,sender) values ('?','?','?')";
-    try (Connection connection = DriverManager.getConnection(connectionUrl, connectionProperties);
+    try (Connection connection = DriverManager.getConnection(connectionUrl);
         PreparedStatement statement = connection.prepareStatement(insertString)) {
       for (MailParser.MailMessage message : messages) {
         statement.setString(1, message.getSubject());
