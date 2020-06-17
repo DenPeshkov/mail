@@ -6,7 +6,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Properties;
 
 public class Database {
   private final String connectionUrl;
@@ -16,8 +15,7 @@ public class Database {
   }
 
   public void insertMails(MailParser.MailMessage[] messages) {
-    String insertString =
-        "insert into user_mail_inbox (subject,comments,sender) values ('?','?','?')";
+    String insertString = "insert into user_mail_inbox (subject,comments,sender) values (?,?,?)";
     try (Connection connection = DriverManager.getConnection(connectionUrl);
         PreparedStatement statement = connection.prepareStatement(insertString)) {
       for (MailParser.MailMessage message : messages) {

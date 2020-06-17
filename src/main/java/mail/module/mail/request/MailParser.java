@@ -5,6 +5,7 @@ import org.jsoup.Jsoup;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.search.FlagTerm;
+import javax.mail.search.SubjectTerm;
 import java.io.IOException;
 import java.util.*;
 
@@ -112,9 +113,9 @@ public final class MailParser {
                   .orElseThrow(() -> new NoSuchElementException("Folder is empty"))) {
             folder.open(Folder.READ_WRITE);
             Message[] messages = folder.search(new FlagTerm(new Flags(Flags.Flag.SEEN), false));
+            messages = folder.search(new SubjectTerm("ЗАЯВКА №"), messages);
             if (properties.getProperty("delete", "false").equals("true"))
               folder.setFlags(messages, new Flags(Flags.Flag.DELETED), true);
-
             FetchProfile fp = new FetchProfile();
             fp.add(FetchProfile.Item.ENVELOPE);
 
@@ -124,7 +125,6 @@ public final class MailParser {
                 Arrays.stream(messages)
                     .map(MailParser::mapMessage)
                     .filter(Objects::nonNull)
-                    .filter(message -> message.subject.toUpperCase().startsWith("ЗАЯВКА №"))
                     .toArray(MailMessage[]::new);
           }
           return mailMessages;

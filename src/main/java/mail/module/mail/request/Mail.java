@@ -44,6 +44,7 @@ public class Mail {
     }
 
     Database database = new Database(properties.getProperty("databaseURL"));
+
     database.insertMails(messages);
   }
 }
