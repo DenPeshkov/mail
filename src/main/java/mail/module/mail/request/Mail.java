@@ -5,10 +5,19 @@ import mail.module.database.access.Database;
 import javax.mail.MessagingException;
 import java.util.Properties;
 
+/** Основной класс для запуска приложения */
 public class Mail {
+
+  /**
+   * Метод для запуска приложения
+   *
+   * @param args параметры командной строки для настройки приложения
+   */
   public static void main(String[] args) {
+    // получаем параметры из системы, например переменных окружения
     Properties properties = System.getProperties();
 
+    // считываем параметры из командной строки и заполняем ими пропертис
     for (int i = 0; i < args.length; i++) {
       if ("--help".equals(args[i])) {
         System.err.println(
@@ -25,6 +34,7 @@ public class Mail {
       else if ("--database".equals(args[i])) properties.setProperty("databaseURL", args[++i]);
     }
 
+    // если нет необходимых параметров выдаем ошибку и завершаем работу приложения
     if (!properties.containsKey("host")
         || !properties.containsKey("user")
         || !properties.containsKey("password")
@@ -35,16 +45,20 @@ public class Mail {
       System.exit(0);
     }
 
+    // массив писем
     MailParser.MailMessage[] messages = new MailParser.MailMessage[0];
     try {
+      // заполняем массив
       messages = MailParser.parse(properties);
-    } catch (MessagingException e) {
+    } catch (MessagingException e) { // если ошибка выходим
       e.printStackTrace(System.err);
       System.exit(1);
     }
 
+    // подключаемся к базе данных
     Database database = new Database(properties.getProperty("databaseURL"));
 
+    // записываем в базу данных письма
     database.insertMails(messages);
   }
 }
